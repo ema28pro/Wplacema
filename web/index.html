@@ -4,20 +4,28 @@
         <meta charset="utf-8">
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
         <meta name="description"
-              content="BlueMap is a tool that generates 3D maps of your Minecraft worlds and displays them in your browser">
+              content="Mapa 3D interactivo del mundo de Minecraft de Wplacema">
         <meta name="version" content="5.29">
-        <meta name="keywords" content="bluemap, map, minecraft, minecraft map">
+        <meta name="keywords" content="wplacema, minecraft, mapa, minecraft map, bluemap">
         <meta name="theme-color" content="#000000">
-        <meta name="og:site_name" content="BlueMap">
-        <meta name="og:title" content="BlueMap">
-        <meta name="og:description"
-              content="BlueMap is a tool that generates 3D maps of your Minecraft worlds and displays them in your browser">
-        <meta name="og:type" content="website">
-        <meta name="og:image" content="./globe_icon.png">
+        <meta property="og:site_name" content="Wplacema">
+        <meta property="og:title" content="Wplacema">
+        <meta property="og:description"
+              content="Mapa 3D interactivo del mundo de Minecraft de Wplacema">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://wplacema.ema2805pro.workers.dev/">
+        <meta property="og:image" content="https://wplacema.ema2805pro.workers.dev/og_image.png">
+        <meta property="og:image:width" content="1078">
+        <meta property="og:image:height" content="581">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Wplacema">
+        <meta name="twitter:description"
+              content="Mapa 3D interactivo del mundo de Minecraft de Wplacema">
+        <meta name="twitter:image" content="https://wplacema.ema2805pro.workers.dev/og_image.png">
         <meta name="robots" content="index,nofollow">
         <link rel="icon" href="./globe_icon.png">
         <link rel="manifest" href="./assets/manifest-vz4Wm4Dd.webmanifest">
-        <title>BlueMap</title>
+        <title>Wplacema</title>
       <script type="module" crossorigin src="./assets/index-CiYMyZas.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-C6zAnFcX.css">
       <style>
@@ -154,6 +162,27 @@
                 <img class="intro-logo" src="./globe_icon.png" alt="Wplace Logo">
             </div>
         </div>
+        <script>
+            // Favicon animado: el globo pulsa con un resplandor verde/azul
+            (() => {
+                const icon = document.querySelector('link[rel="icon"]');
+                const img = new Image();
+                img.src = './globe_icon.png';
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                let t = 0;
+                img.onload = () => setInterval(() => {
+                    t += 0.08;
+                    const pulse = 0.5 + 0.5 * Math.sin(t);
+                    ctx.clearRect(0, 0, 64, 64);
+                    ctx.shadowColor = `rgba(74, 217, 91, ${0.4 + 0.6 * pulse})`;
+                    ctx.shadowBlur = 4 + 8 * pulse;
+                    ctx.drawImage(img, 8, 8, 48, 48);
+                    icon.href = canvas.toDataURL('image/png');
+                }, 100);
+            })();
+        </script>
         <script>
             // Desvanecimiento suave y autodestrucción del DOM para dejar 100% libre el mapa 3D
             window.addEventListener('DOMContentLoaded', () => {
