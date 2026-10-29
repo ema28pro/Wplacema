@@ -9,27 +9,30 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    console.log(`[Worker] Request: ${path}`);
+
     // Try to serve the requested file first (as-is)
     let response = await env.ASSETS.fetch(request);
 
     // If found, return it directly
     if (response.ok) {
+      console.log(`[Worker] Served directly: ${path} (${response.status})`);
       return response;
     }
+
+    console.log(`[Worker] Not found (${response.status}), trying .gz: ${path}.gz`);
 
     // If 404, check if a .gz version exists
     const gzRequest = new Request(url.origin + path + ".gz", request);
     const gzResponse = await env.ASSETS.fetch(gzRequest);
 
     if (gzResponse.ok) {
-      // Determine Content-Type based on the original extension
       const contentType = getContentType(path);
+      console.log(`[Worker] Serving .gz as ${contentType} with Content-Encoding: gzip → ${path}`);
 
-      // Build new response with proper headers for gzip content
       const headers = new Headers(gzResponse.headers);
       headers.set("Content-Encoding", "gzip");
       headers.set("Content-Type", contentType);
-      // Remove content-length since it refers to compressed size
       headers.delete("Content-Length");
 
       return new Response(gzResponse.body, {
@@ -38,7 +41,7 @@ export default {
       });
     }
 
-    // Nothing found, return original 404
+    console.log(`[Worker] 404 final: ${path}`);
     return response;
   },
 };
