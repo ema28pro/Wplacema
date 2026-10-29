@@ -14,8 +14,10 @@ export default {
     if (response.ok) return response;
 
     // Not found — try the .gz version
+    // Use a clean request (no If-None-Match / If-Modified-Since) to avoid
+    // Cloudflare returning 304 Not Modified which we can't decompress.
     const gzResponse = await env.ASSETS.fetch(
-      new Request(url.origin + path + ".gz", request)
+      new Request(url.origin + path + ".gz", { method: "GET" })
     );
 
     if (!gzResponse.ok) return response; // nothing found, return 404
