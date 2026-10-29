@@ -1,0 +1,17 @@
+# ==========================================
+# Minecraft World Data (Archivos pesados del juego)
+# ==========================================
+world_data/
+*.zip
+
+# ==========================================
+# BlueMap runtime data y cliente Mojang
+# ==========================================
+data/
+
+# ==========================================
+# Archivos del sistema y temporales
+# ==========================================
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,8 @@
+/* ==============================================================================
+   BlueMap BSL Shader Look (Efecto Cinemático directo sobre el Canvas 3D)
+   Aumenta el contraste, la calidez solar y la saturación de los bloques
+   ============================================================================== */
+
+#map-container canvas {
+  filter: contrast(1.16) saturate(1.28) brightness(1.04) hue-rotate(-2deg);
+}
