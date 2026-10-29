@@ -163,27 +163,6 @@
             </div>
         </div>
         <script>
-            // Favicon animado: el globo pulsa con un resplandor verde/azul
-            (() => {
-                const icon = document.querySelector('link[rel="icon"]');
-                const img = new Image();
-                img.src = './globe_icon.png';
-                const canvas = document.createElement('canvas');
-                canvas.width = canvas.height = 64;
-                const ctx = canvas.getContext('2d');
-                let t = 0;
-                img.onload = () => setInterval(() => {
-                    t += 0.08;
-                    const pulse = 0.5 + 0.5 * Math.sin(t);
-                    ctx.clearRect(0, 0, 64, 64);
-                    ctx.shadowColor = `rgba(74, 217, 91, ${0.4 + 0.6 * pulse})`;
-                    ctx.shadowBlur = 4 + 8 * pulse;
-                    ctx.drawImage(img, 8, 8, 48, 48);
-                    icon.href = canvas.toDataURL('image/png');
-                }, 100);
-            })();
-        </script>
-        <script>
             // Desvanecimiento suave y autodestrucción del DOM para dejar 100% libre el mapa 3D
             window.addEventListener('DOMContentLoaded', () => {
                 const overlay = document.getElementById('intro-overlay');
