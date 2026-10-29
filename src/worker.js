@@ -1,7 +1,7 @@
 /**
  * BlueMap Cloudflare Worker
- * Serves gzip-compressed BlueMap assets (.gz files) with proper Content-Encoding headers
- * so the browser decompresses them transparently.
+ * Fetches gzip-compressed BlueMap assets (.gz files), decompresses them
+ * in the Worker, and serves plain content — avoiding double-gzip issues.
  */
 
 export default {
@@ -9,50 +9,38 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    console.log(`[Worker] Request: ${path}`);
+    // Try the requested file as-is first
+    const response = await env.ASSETS.fetch(request);
+    if (response.ok) return response;
 
-    // Try to serve the requested file first (as-is)
-    let response = await env.ASSETS.fetch(request);
+    // Not found — try the .gz version
+    const gzResponse = await env.ASSETS.fetch(
+      new Request(url.origin + path + ".gz", request)
+    );
 
-    // If found, return it directly
-    if (response.ok) {
-      console.log(`[Worker] Served directly: ${path} (${response.status})`);
-      return response;
-    }
+    if (!gzResponse.ok) return response; // nothing found, return 404
 
-    console.log(`[Worker] Not found (${response.status}), trying .gz: ${path}.gz`);
+    // Decompress gzip in the Worker using the Web Streams API
+    const decompressed = gzResponse.body.pipeThrough(
+      new DecompressionStream("gzip")
+    );
 
-    // If 404, check if a .gz version exists
-    const gzRequest = new Request(url.origin + path + ".gz", request);
-    const gzResponse = await env.ASSETS.fetch(gzRequest);
-
-    if (gzResponse.ok) {
-      const contentType = getContentType(path);
-      console.log(`[Worker] Serving .gz as ${contentType} with Content-Encoding: gzip → ${path}`);
-
-      const headers = new Headers(gzResponse.headers);
-      headers.set("Content-Encoding", "gzip");
-      headers.set("Content-Type", contentType);
-      headers.delete("Content-Length");
-
-      return new Response(gzResponse.body, {
-        status: gzResponse.status,
-        headers,
-      });
-    }
-
-    console.log(`[Worker] 404 final: ${path}`);
-    return response;
+    return new Response(decompressed, {
+      status: 200,
+      headers: {
+        "Content-Type": getContentType(path),
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
   },
 };
 
 function getContentType(path) {
   if (path.endsWith(".json")) return "application/json";
   if (path.endsWith(".prbm")) return "application/octet-stream";
-  if (path.endsWith(".png")) return "image/png";
-  if (path.endsWith(".js")) return "application/javascript";
-  if (path.endsWith(".css")) return "text/css";
+  if (path.endsWith(".png"))  return "image/png";
+  if (path.endsWith(".js"))   return "application/javascript";
+  if (path.endsWith(".css"))  return "text/css";
   if (path.endsWith(".html")) return "text/html; charset=utf-8";
   return "application/octet-stream";
 }
-
