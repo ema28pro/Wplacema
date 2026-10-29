@@ -7,21 +7,177 @@
               content="BlueMap is a tool that generates 3D maps of your Minecraft worlds and displays them in your browser">
         <meta name="version" content="5.29">
         <meta name="keywords" content="bluemap, map, minecraft, minecraft map">
-        <meta name="theme-color" content="#006EDE">
+        <meta name="theme-color" content="#000000">
         <meta name="og:site_name" content="BlueMap">
         <meta name="og:title" content="BlueMap">
         <meta name="og:description"
               content="BlueMap is a tool that generates 3D maps of your Minecraft worlds and displays them in your browser">
         <meta name="og:type" content="website">
-        <meta name="og:image" content="https://avatars.githubusercontent.com/u/42522657?s=200&v=4">
+        <meta name="og:image" content="./globe_icon.png">
         <meta name="robots" content="index,nofollow">
-        <link rel="icon" href="./assets/favicon-DEN7TZ5X.png">
+        <link rel="icon" href="./globe_icon.png">
         <link rel="manifest" href="./assets/manifest-vz4Wm4Dd.webmanifest">
         <title>BlueMap</title>
       <script type="module" crossorigin src="./assets/index-CiYMyZas.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-C6zAnFcX.css">
+      <style>
+        /* ==========================================================================
+           Intro Cinematográfica Wplace (Estilo aura difuminada, inicio pequeño a expansión)
+           Paleta: #1c61e7, #3172e7, #4ad95b, #45cc55, #000000
+           ========================================================================== */
+        #intro-overlay {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: #000000;
+          z-index: 999999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          pointer-events: auto;
+          transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #intro-overlay.fade-out {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .intro-stage {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 400px;
+          height: 400px;
+          animation: introSequence 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Difuminado / Aura cromática multicapa con los colores exactos */
+        .intro-aura {
+          position: absolute;
+          width: 320px;
+          height: 320px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle at center,
+            rgba(74, 217, 91, 0.75) 0%,
+            rgba(69, 204, 85, 0.6) 24%,
+            rgba(49, 114, 231, 0.65) 48%,
+            rgba(28, 97, 231, 0.4) 68%,
+            rgba(0, 0, 0, 0) 80%
+          );
+          filter: blur(45px);
+          animation: auraBreathe 3s ease-in-out infinite alternate;
+        }
+
+        /* Resplandor secundario para mayor profundidad y contraste en fondo negro */
+        .intro-aura-outer {
+          position: absolute;
+          width: 420px;
+          height: 420px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle at center,
+            rgba(49, 114, 231, 0.3) 0%,
+            rgba(28, 97, 231, 0.2) 50%,
+            rgba(0, 0, 0, 0) 75%
+          );
+          filter: blur(60px);
+          animation: auraPulse 2.8s ease-in-out infinite alternate;
+        }
+
+        /* Ícono Tierra Pixel-Art perfectamente centrado con nítida definición y glow */
+        .intro-logo {
+          position: relative;
+          width: 140px;
+          height: 140px;
+          image-rendering: pixelated;
+          image-rendering: -moz-crisp-edges;
+          image-rendering: crisp-edges;
+          filter: drop-shadow(0 0 18px rgba(49, 114, 231, 0.9))
+                  drop-shadow(0 0 32px rgba(69, 204, 85, 0.75));
+          user-select: none;
+          -webkit-user-drag: none;
+        }
+
+        /* Secuencia: comienza pequeño con difuminado suave y crece elegantemente */
+        @keyframes introSequence {
+          0% {
+            opacity: 0;
+            transform: scale(0.4);
+            filter: blur(14px);
+          }
+          20% {
+            opacity: 1;
+            transform: scale(0.85);
+            filter: blur(0px);
+          }
+          60% {
+            opacity: 1;
+            transform: scale(1.0);
+            filter: blur(0px);
+          }
+          85% {
+            opacity: 1;
+            transform: scale(1.08);
+            filter: blur(0px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1.15);
+            filter: blur(0px);
+          }
+        }
+
+        @keyframes auraBreathe {
+          0% {
+            transform: scale(0.88);
+            opacity: 0.65;
+          }
+          100% {
+            transform: scale(1.18);
+            opacity: 1;
+          }
+        }
+
+        @keyframes auraPulse {
+          0% {
+            transform: scale(0.92);
+            opacity: 0.4;
+          }
+          100% {
+            transform: scale(1.12);
+            opacity: 0.85;
+          }
+        }
+      </style>
     </head>
     <body>
+        <!-- Pantalla de entrada cinemática Wplace -->
+        <div id="intro-overlay">
+            <div class="intro-stage">
+                <div class="intro-aura-outer"></div>
+                <div class="intro-aura"></div>
+                <img class="intro-logo" src="./globe_icon.png" alt="Wplace Logo">
+            </div>
+        </div>
+        <script>
+            // Desvanecimiento suave y autodestrucción del DOM para dejar 100% libre el mapa 3D
+            window.addEventListener('DOMContentLoaded', () => {
+                const overlay = document.getElementById('intro-overlay');
+                if (!overlay) return;
+
+                setTimeout(() => {
+                    overlay.classList.add('fade-out');
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 800);
+                }, 2800);
+            });
+        </script>
         <noscript>
             <strong>Sorry but BlueMap doesn't work without JavaScript enabled.
                 Please <a href="https://www.enable-javascript.com/">enable</a> it to continue.</strong>
