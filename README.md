@@ -1,64 +1,66 @@
-# 🌍 BlueMap 3D • Servidor de Minecraft para la Web
+# 🌍 Wplacema • Mapa 3D de Minecraft para la Web
 
-Visor 3D interactivo nativo de **BlueMap** para tu mundo de Minecraft, optimizado para ejecutarse en local o publicarse gratis en **Cloudflare Pages**.
+Visor 3D interactivo de **BlueMap** para el mundo de Minecraft de Wplacema, publicado en **Cloudflare Workers** (con archivos estáticos desde la carpeta `web`).
 
----
 
-## 🚀 Cómo usar en tu PC (Local)
+## 🚀 Probar en tu PC (Local)
 
-1. Haz doble clic en **`start.bat`**.
-2. Elige una opción:
-   - **`1`**: Iniciar el servidor web local (`http://localhost:8100/`).
-   - **`2`**: Re-renderizar el mapa completo si hiciste nuevas construcciones.
-   - **`3`**: Iniciar servidor y vigilar cambios en tiempo real.
-   - **`4`**: Desplegar en Cloudflare Pages con Wrangler.
+Abre una terminal en la carpeta del proyecto y ejecuta:
 
----
-
-## ☁️ Cómo subir a Cloudflare Pages (Gratis 24/7)
-
-La web completa de BlueMap está en la carpeta **`web`** (pesa poco y tiene solo ~1.500 archivos, muy por debajo del límite de 20.000).
-
-### Opción A: Desde la web de Cloudflare (Sin comandos)
-1. Ve a [dash.cloudflare.com](https://dash.cloudflare.com/) > **Workers & Pages** > **Create Application** > pestaña **Pages**.
-2. Selecciona **Upload assets** (Subida directa).
-3. Ponle un nombre a tu proyecto (ej: `mi-mundo-minecraft`).
-4. **Arrastra y suelta la carpeta `web`** de este proyecto.
-5. Haz clic en **Deploy site**. ¡Listo! Te dará tu enlace `.pages.dev` público.
-
-### Opción B: Por Terminal con 1 comando
 ```powershell
-npx wrangler pages deploy web --project-name=mi-mundo-minecraft
+java -jar tools\bluemap-cli.jar -c config -w
 ```
 
----
+Luego abre `http://localhost:8100/`.
 
-## 🔄 ¿Cómo actualizar el mapa cuando construyan cosas nuevas?
+> Si tienes un JDK propio, usa su ruta en lugar de `java`, por ejemplo `C:\.jdk\openJdk-25\bin\java.exe`.
 
-Si juegan más tiempo en el servidor y quieres que aparezcan las nuevas construcciones en la web:
 
-1. **Descarga el nuevo `world.zip`** de Aternos.
-2. **Reemplaza la carpeta `world_data/world`** con el nuevo mundo descomprimido.
-3. Abre **`start.bat`** y elige la opción **`2`**:
-   - BlueMap detectará automáticamente solo los chunks que cambiaron y actualizará la carpeta `web/` en pocos segundos.
-4. **Vuelve a subir la carpeta `web`** a Cloudflare Pages (o haz un `git commit` y `git push` en GitKraken).
+## 🔄 Volver a generar el mapa con un mundo nuevo
 
----
+1. **Descarga el `world.zip`** del servidor (por ejemplo desde Aternos) y descomprímelo.
+2. **Reemplaza la carpeta `world_data/world`** del proyecto con el mundo descomprimido.
+3. **Renderiza el mapa completo** desde la terminal:
+   ```powershell
+   java -jar tools\bluemap-cli.jar -c config -f -r
+   ```
+   Esto actualiza la carpeta `web/`. Puede tardar bastante.
+4. **Revisa el resultado en local** con el comando de la sección anterior.
+5. **Sube los cambios** a Cloudflare (ver abajo) o haz `git commit` y `git push`.
+
+Si solo cambiaron algunas construcciones, puedes renderizar solo lo modificado con `-ru` (vigila cambios y actualiza en vivo):
+
+```powershell
+java -jar tools\bluemap-cli.jar -c config -ru
+```
+
+## ☁️ Publicar en Cloudflare
+
+El proyecto se despliega como **Worker** con archivos estáticos (`wrangler.jsonc`). Desde la carpeta del proyecto:
+
+```powershell
+npx wrangler deploy
+```
+
+El enlace queda en `https://wplacema.<tu-subdominio>.workers.dev`.
+
 
 ## 📂 Estructura
 
 ```text
 Web WplaceMine/
-├── start.bat             # Acceso directo para Windows
-├── render-world.ps1      # Script PowerShell para iniciar o renderizar
-├── config/               # Configuraciones de BlueMap (render-mask, threads, etc.)
+├── config/               # Configuración de BlueMap (mapa, webapp, servidor)
+│   └── maps/overworld.conf   # Zona renderizada (render-mask) y punto de inicio
 ├── tools/
 │   └── bluemap-cli.jar   # Motor BlueMap CLI
-├── web/                  # La web 100% nativa de BlueMap (lista para Cloudflare)
-│   ├── index.html        # Visor 3D oficial de BlueMap
+├── src/
+│   └── worker.js         # Worker: sirve la web y descomprime los .gz
+├── web/                  # Web de BlueMap lista para desplegar
+│   ├── index.html        # Visor 3D (título, etiquetas OG)
 │   ├── assets/           # Scripts y estilos de BlueMap
-│   ├── maps/             # Los bloques y texturas 3D renderizados
+│   ├── maps/             # Bloques y texturas 3D renderizados
 │   └── settings.json     # Configuración web de BlueMap
-└── world_data/
-    └── world/            # Tu mundo de Minecraft extraído (Overworld)
+├── world_data/
+│   └── world/            # Mundo de Minecraft extraído (Overworld)
+└── wrangler.jsonc        # Configuración de Cloudflare
 ```
